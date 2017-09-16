@@ -1,18 +1,16 @@
 #include <Thing.h>
 #include <BlinkPattern.h>
-#include <HX711.h>
+#include "MAX44009.h"
 #include <Arduino.h>
-
-#define SCALE_DOUT_PIN D2
-#define SCALE_SCK_PIN D3
 
 using namespace g3rb3n;
 
+#define ON 0
+#define OFF 1
+
 Thing thing;
 BlinkPattern led(BUILTIN_LED);
-HX711 scale(SCALE_DOUT_PIN, SCALE_SCK_PIN);
-
-float divider = 108100.;
+MAX44009 sensor;
 
 BlinkPattern::Pattern<2> panic{{1,1},25};
 BlinkPattern::Pattern<2> start{{1,9},25};
@@ -21,8 +19,6 @@ BlinkPattern::Pattern<0> disable{{},1000};
 
 void setup() 
 {
-//  ESP.wdtDisable();
-
   Serial.begin(230400);
   Serial.println();
   Serial.println("Client:" + thing.clientId());
@@ -33,22 +29,14 @@ void setup()
     Serial.println(msg);
   });
 
-  thing.addSensor(String("sensor/hx711/") + thing.clientId(), 1000, [](Value& value){
-    digitalWrite(BUILTIN_LED, 1);
-    float grams = scale.get_units(4);
-    Serial.println(grams);
-    digitalWrite(BUILTIN_LED, 0);
-    value = grams;
+  thing.addSensor(String("sensor/lux/") + thing.clientId(), 1000, [](Value& value){
+    digitalWrite(BUILTIN_LED, ON);
+    float lux = sensor.lux();
+    Serial.println(lux);
+    digitalWrite(BUILTIN_LED, OFF);
+    value = lux;
   });
 
-  thing.addActuator(String("reset/hx711/") + thing.clientId(), [](Value& value){
-    scale.set_scale(108100.);
-    scale.tare();
-  });
-
-  scale.set_scale(108100.);
-  scale.tare();
-  
   thing.begin();
   led.setPattern(disable);
 }

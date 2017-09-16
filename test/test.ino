@@ -1,21 +1,16 @@
 #include <Arduino.h>
 #include <unity.h>
 
-#include "HX711.h"
+#include "MAX44009.h"
 
 #ifdef UNIT_TEST
 
-using namespace g3rb3n;
-
-#define SCALE_DOUT_PIN D2
-#define SCALE_SCK_PIN D3
-
-HX711 scale(SCALE_DOUT_PIN, SCALE_SCK_PIN);
+MAX44009 sensor;
 
 void readsProperValue() 
 {
-  float value = scale.get_units(4);
-  TEST_ASSERT_FLOAT_WITHIN(10, 0, value);
+  float value = sensor.lux();
+  TEST_ASSERT_FLOAT_WITHIN(100, 100, value);
 }
 
 void setup() 
@@ -24,9 +19,6 @@ void setup()
   // if board doesn't support software reset via Serial.DTR/RTS
   delay(2000);
   UNITY_BEGIN();
-
-  scale.set_scale(108100.);
-  scale.tare();
 }
 
 void loop() 
