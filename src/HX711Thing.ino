@@ -19,7 +19,7 @@ BlinkPattern::Pattern<2> start{{1,9},25};
 BlinkPattern::Pattern<2> normal{{1,39},25};
 BlinkPattern::Pattern<0> disable{{},1000};
 
-void setup() 
+void setup()
 {
 //  ESP.wdtDisable();
 
@@ -28,12 +28,14 @@ void setup()
   Serial.println("Client:" + thing.clientId());
 
   led.setPattern(start);
-  
+
   thing.onStateChange([](const String& msg){
     Serial.println(msg);
   });
 
-  thing.addSensor(String("sensor/hx711/") + thing.clientId(), 1000, [](Value& value){
+  thing.begin();
+
+  thing.addSensor(thing.clientId() + "/hx711/weight", 1000, [](Value& value){
     digitalWrite(BUILTIN_LED, 1);
     float grams = scale.get_units(4);
     Serial.println(grams);
@@ -41,15 +43,14 @@ void setup()
     value = grams;
   });
 
-  thing.addActuator(String("reset/hx711/") + thing.clientId(), [](Value& value){
+  thing.addActuator(thing.clientId() + "/hx711/reset", [](Value& value){
     scale.set_scale(108100.);
     scale.tare();
   });
 
   scale.set_scale(108100.);
   scale.tare();
-  
-  thing.begin();
+
   led.setPattern(disable);
 }
 
