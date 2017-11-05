@@ -25,7 +25,7 @@ void setup()
 
   Serial.begin(230400);
   Serial.println();
-  Serial.println("Client:" + thing.clientId());
+  Serial.println("ClientID:" + thing.clientId());
 
   led.setPattern(start);
 
