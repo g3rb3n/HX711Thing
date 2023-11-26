@@ -7,6 +7,7 @@
 #define SCALE_SCK_PIN D3
 
 using namespace g3rb3n;
+using namespace ootb;
 
 Thing thing;
 BlinkPattern led(BUILTIN_LED);
@@ -35,7 +36,7 @@ void setup()
 
   thing.begin();
 
-  thing.addSensor(thing.clientId() + "/hx711/weight", 1000, [](Value& value){
+  thing.addSensor("things/" + thing.clientId() + "/hx711/weight", 1000, [](Value& value){
     digitalWrite(BUILTIN_LED, 1);
     float grams = scale.get_units(4);
     Serial.println(grams);
@@ -43,7 +44,7 @@ void setup()
     value = grams;
   });
 
-  thing.addActuator(thing.clientId() + "/hx711/reset", [](Value& value){
+  thing.addActuator("things/" + thing.clientId() + "/hx711/reset", [](Value& value){
     scale.set_scale(108100.);
     scale.tare();
   });
